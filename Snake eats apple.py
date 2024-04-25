@@ -45,29 +45,51 @@ def game_over():
     pygame.quit()
     quit()
 
+# Keyboard bindings
+def go_up():
+    global change_to
+    if snake_direction != "DOWN":
+        change_to = "UP"
+
+def go_down():
+    global change_to
+    if snake_direction != "UP":
+        change_to = "DOWN"
+
+def go_left():
+    global change_to
+    if snake_direction != "RIGHT":
+        change_to = "LEFT"
+
+def go_right():
+    global change_to
+    if snake_direction != "LEFT":
+        change_to = "RIGHT"
+
 # Main game loop
 def main():
-    global snake_pos, snake_body, apple_pos, apple_spawn, pineapple_pos, pineapple_spawn, pineapple_timer, bonus_points, score
+    global snake_pos, snake_body, apple_pos, apple_spawn, pineapple_pos, pineapple_spawn, pineapple_timer, bonus_points, score, change_to
 
-    while True:
+    running = True  # Add a variable to control the main loop
+
+    while running:  # Use the variable to control the loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+                running = False  # Set running to False to exit the loop when the window is closed
 
-            # Check for key presses
-            keys = pygame.key.get_pressed()
-            for key in keys:
-                if keys[pygame.K_LEFT]:
-                    change_to = "LEFT"
-                elif keys[pygame.K_RIGHT]:
-                    change_to = "RIGHT"
-                elif keys[pygame.K_UP]:
-                    change_to = "UP"
-                elif keys[pygame.K_DOWN]:
-                    change_to = "DOWN"
+        # Keyboard bindings
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            go_up()
+        elif keys[pygame.K_s]:
+            go_down()
+        elif keys[pygame.K_a]:
+            go_left()
+        elif keys[pygame.K_d]:
+            go_right()
 
         # Change snake direction
+        global snake_direction  # Declare snake_direction as global
         if change_to == "LEFT" and not snake_direction == "RIGHT":
             snake_direction = "LEFT"
         elif change_to == "RIGHT" and not snake_direction == "LEFT":
@@ -122,8 +144,11 @@ def main():
             pygame.draw.rect(WIN, YELLOW, pygame.Rect(pineapple_pos[0], pineapple_pos[1], 10, 10))
 
         # Collision detection
+        # Detect collision with window edges
         if snake_pos[0] < 0 or snake_pos[0] > WIDTH - 10 or snake_pos[1] < 0 or snake_pos[1] > HEIGHT - 10:
             game_over()
+
+        # Detect collision with snake body
         for block in snake_body[1:]:
             if snake_pos[0] == block[0] and snake_pos[1] == block[1]:
                 game_over()
@@ -131,6 +156,8 @@ def main():
         # Refresh screen
         pygame.display.flip()
         pygame.time.Clock().tick(snake_speed)
+
+    pygame.quit()  # Call pygame.quit() outside the loop to properly close the game window
 
 if __name__ == "__main__":
     main()
