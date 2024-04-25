@@ -13,6 +13,7 @@ pygame.display.set_caption("Snake Game")
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
 
 # Snake variables
 snake_pos = [100, 50]
@@ -24,6 +25,12 @@ snake_speed = 15
 # Apple variables
 apple_pos = [random.randrange(1, (WIDTH//10)) * 10, random.randrange(1, (HEIGHT//10)) * 10]
 apple_spawn = True
+
+# Pineapple variables
+pineapple_pos = [random.randrange(1, (WIDTH//10)) * 10, random.randrange(1, (HEIGHT//10)) * 10]
+pineapple_spawn = False
+pineapple_timer = 0
+bonus_points = 0
 
 # Score variable
 score = 0
@@ -40,7 +47,7 @@ def game_over():
 
 # Main game loop
 def main():
-    global snake_pos, snake_body, apple_pos, apple_spawn, score
+    global snake_pos, snake_body, apple_pos, apple_spawn, pineapple_pos, pineapple_spawn, pineapple_timer, bonus_points, score
 
     while True:
         for event in pygame.event.get():
@@ -85,6 +92,12 @@ def main():
         if snake_pos[0] == apple_pos[0] and snake_pos[1] == apple_pos[1]:
             score += 1
             apple_spawn = False
+            bonus_points += 1
+            if bonus_points % 5 == 0:
+                score += 5
+        elif snake_pos[0] == pineapple_pos[0] and snake_pos[1] == pineapple_pos[1]:
+            score += 10
+            pineapple_spawn = False
         else:
             snake_body.pop()
 
@@ -93,12 +106,21 @@ def main():
             apple_pos = [random.randrange(1, (WIDTH//10)) * 10, random.randrange(1, (HEIGHT//10)) * 10]
             apple_spawn = True
 
+        # Pineapple spawn
+        pineapple_timer += 1
+        if pineapple_timer == 300:  # 5 seconds (60 frames per second * 5)
+            pineapple_spawn = True
+            pineapple_pos = [random.randrange(1, (WIDTH // 10)) * 10, random.randrange(1, (HEIGHT // 10)) * 10]
+            pineapple_timer = 0
+
         # Draw elements
         WIN.fill(BLACK)
         for pos in snake_body:
             pygame.draw.rect(WIN, WHITE, pygame.Rect(pos[0], pos[1], 10, 10))
         pygame.draw.rect(WIN, RED, pygame.Rect(apple_pos[0], apple_pos[1], 10, 10))
-        
+        if pineapple_spawn:
+            pygame.draw.rect(WIN, YELLOW, pygame.Rect(pineapple_pos[0], pineapple_pos[1], 10, 10))
+
         # Collision detection
         if snake_pos[0] < 0 or snake_pos[0] > WIDTH - 10 or snake_pos[1] < 0 or snake_pos[1] > HEIGHT - 10:
             game_over()
